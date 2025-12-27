@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Schedule Website</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <aside class="sidebar">
+            <div id="weekControls">
+                <button id="prevWeek">Previous Week</button>
+                <button id="currentWeek">Current Week</button>
+                <button id="nextWeek">Next Week</button>
+            </div>
+            <button id="addEventBtn">Add Event</button>
+            <a href="../index.html" class="back-btn">Back to Main</a>
+        </aside>
+        <main class="main-content">
+            <h1>My Schedule</h1>
+            <div id="currentTime"></div>
+            <div id="eventFormContainer" style="display:none;">
+                <form id="eventform">
+                    <label for="eventname">Event Title:</label>
+                    <input type="text" id="eventTitle" required><br><br>
+                    
+                    <label for="eventDate">Data:</label>
+                    <input type="date" id="eventDate" required><br><br>
+
+                    <label for="startTime">Start Time:</label>
+                    <input type="time" id="startTime" required><br><br>
+
+                    <label for="endTime">End Time:</label>
+                    <input type="time" id="endTime" required><br><br>
+
+                    <button type="submit">Add Event</button>   
+                </form>
+            </div>
+            <h2>Weekly Schedule</h2>
+            <div id="weeklySchedule"></div>
+        </main>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
