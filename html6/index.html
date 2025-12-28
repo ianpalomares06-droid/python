@@ -1,133 +1,86 @@
-<script>
-document.addEventListener('DOMContentLoaded', () => {
-    // -------------------- User System --------------------
-    let users = JSON.parse(localStorage.getItem('users')) || [];
-    let currentUser = JSON.parse(localStorage.getItem('currentUser')) || null;
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>My Website</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<header>
+    <div class="dropdown">
+        <button class="dropbtn">Menu ▼</button>
+        <div class="dropdown-content">
+            <a href="#home">Home</a>
+            <a href="#about">About</a>
+            <a href="#services">Services</a>
+            <a href="#contact">Contact</a>
+            <a href="#auth">Register</a>
+        </div>
+    </div>
+    <h1>My Professional Website</h1>
+    <div class="login-container">
+        <form id="login">
+            <label>Username: <input type="text" id="login-username" required></label>
+            <label>Password: <input type="password" id="login-password" required></label>
+            <button type="submit">Login</button>
+        </form>
+        <div id="user-panel" style="display:none;">
+            Welcome, <span id="user-name"></span> 
+            <button id="logout">Logout</button> 
+            <button id="delete-account">Delete</button>
+        </div>
+    </div>
+</header>
 
-    const loginForm = document.getElementById('login');
-    const userPanel = document.getElementById('user-panel');
-    const registerForm = document.getElementById('register');
+<main>
+    <section id="home" class="hero">
+        <h2>Welcome to My Website</h2>
+        <p>This is a professional-looking website built with HTML and CSS. Discover more about what we offer.</p>
+        <a href="#about" class="btn">Learn More</a>
+    </section>
+    <section id="about">
+        <h2>About Us</h2>
+        <p>We are a dedicated team providing high-quality services. Our mission is to deliver excellence in everything we do.</p>
+    </section>
+    <section id="services">
+        <h2>Our Services</h2>
+        <ul>
+            <li>Web Development</li>
+            <li>Design Consulting</li>
+            <li>SEO Optimization</li>
+            <li>Customer Support</li>
+        </ul>
+    </section>
+    <section id="contact">
+        <h2>Contact Us</h2>
+        <p>Email: info@mywebsite.com</p>
+        <p>Phone: (123) 456-7890</p>
+    </section>
+    <section id="auth">
+        <h2>Register</h2>
+        <form id="register">
+            <label>Username: <input type="text" id="reg-username" required></label>
+            <label>Password: <input type="password" id="reg-password" required></label>
+            <button type="submit">Register</button>
+        </form>
+    </section>
+</main>
 
-    function saveUsers() { localStorage.setItem('users', JSON.stringify(users)); }
-    function saveCurrentUser() { localStorage.setItem('currentUser', JSON.stringify(currentUser)); }
+<footer>
+    <p>&copy; 2025 My Website. All rights reserved.</p>
+</footer>
 
-    function showLogin() {
-        loginForm.style.display = 'flex';
-        userPanel.style.display = 'none';
-    }
+<!-- Chatbox -->
+<div id="chatbot-container">
+    <div id="chatbot-header">Chat with us!</div>
+    <div id="chatbot-body">
+        <div id="chatbot-messages"></div>
+        <input type="text" id="chatbot-input" placeholder="Type your message...">
+        <button id="chatbot-send">Send</button>
+    </div>
+</div>
 
-    function showUserPanel() {
-        loginForm.style.display = 'none';
-        userPanel.style.display = 'flex';
-        document.getElementById('user-name').textContent = currentUser.username;
-    }
-
-    if(currentUser) showUserPanel();
-    else showLogin();
-
-    // Login
-    loginForm.addEventListener('submit', e => {
-        e.preventDefault();
-        const username = document.getElementById('login-username').value.trim();
-        const password = document.getElementById('login-password').value.trim();
-        const user = users.find(u => u.username === username && u.password === password);
-        if(user){
-            currentUser = user;
-            saveCurrentUser();
-            showUserPanel();
-        } else {
-            alert('Invalid username or password');
-        }
-    });
-
-    // Register
-    registerForm.addEventListener('submit', e => {
-        e.preventDefault();
-        const username = document.getElementById('reg-username').value.trim();
-        const password = document.getElementById('reg-password').value.trim();
-        if(users.find(u=>u.username===username)){ 
-            alert('Username already exists'); 
-        } else { 
-            const newUser = {username, password};
-            users.push(newUser); 
-            saveUsers(); 
-            alert('Registered successfully'); 
-            registerForm.reset(); 
-        }
-    });
-
-    // Logout
-    document.getElementById('logout').addEventListener('click', () => {
-        currentUser = null;
-        saveCurrentUser();
-        showLogin();
-    });
-
-    // Delete account
-    document.getElementById('delete-account').addEventListener('click', () => { 
-        if(currentUser && confirm('Are you sure you want to delete your account?')) { 
-            users = users.filter(u => u.username !== currentUser.username); 
-            saveUsers(); 
-            currentUser = null; 
-            saveCurrentUser();
-            showLogin(); 
-        } 
-    });
-
-    // -------------------- Chatbot --------------------
-    const chatMessages = document.getElementById('chatbot-messages');
-    const chatInput = document.getElementById('chatbot-input');
-    const chatSend = document.getElementById('chatbot-send');
-    const chatBody = document.getElementById('chatbot-body');
-
-    let conversationHistory = JSON.parse(localStorage.getItem('chatHistory')) || [];
-    conversationHistory.forEach(msg => addMessage(msg.message, msg.sender));
-
-    function addMessage(message, sender='user'){
-        const msgDiv = document.createElement('div');
-        msgDiv.className = sender==='user' ? 'chat-msg user-msg' : 'chat-msg bot-msg';
-        msgDiv.textContent = message;
-        chatMessages.appendChild(msgDiv);
-        chatMessages.scrollTop = chatMessages.scrollHeight;
-
-        conversationHistory.push({sender,message});
-        if(conversationHistory.length > 50) conversationHistory.shift();
-        localStorage.setItem('chatHistory', JSON.stringify(conversationHistory));
-    }
-
-    function botReply(userText){
-        const text = userText.toLowerCase().trim();
-        if(/hello|hi|hey/.test(text)) return "Hello! How can I assist you today?";
-        if(/services/.test(text)) return "We offer Web Development, Design Consulting, SEO Optimization, and Customer Support.";
-        if(/contact|email|phone/.test(text)) return "You can reach us at info@mywebsite.com or call (123) 456-7890.";
-        if(/about/.test(text)) return "We are a dedicated team providing high-quality services.";
-        if(/register|sign up/.test(text)) return "You can register using the form in the Register section.";
-        if(/time/.test(text)) return `Current time is ${new Date().toLocaleTimeString()}`;
-        if(/date/.test(text)) return `Today's date is ${new Date().toLocaleDateString()}`;
-        return "I'm sorry, I don't fully understand. Can you rephrase your question?";
-    }
-
-    function botTyping(callback){
-        const typingDiv = document.createElement('div');
-        typingDiv.className = 'chat-msg bot-msg';
-        typingDiv.textContent = 'Bot is typing...';
-        chatMessages.appendChild(typingDiv);
-        chatMessages.scrollTop = chatMessages.scrollHeight;
-        setTimeout(() => { typingDiv.remove(); callback(); }, 800 + Math.random() * 700);
-    }
-
-    chatSend.addEventListener('click', ()=> {
-        const text = chatInput.value.trim();
-        if(text==='') return;
-        addMessage(text,'user');
-        chatInput.value = '';
-        botTyping(()=> addMessage(botReply(text),'bot'));
-    });
-
-    chatInput.addEventListener('keypress', e=>{ if(e.key==='Enter') chatSend.click(); });
-
-    document.getElementById('chatbot-header').addEventListener('click', ()=> {
-        chatBody.style.display = chatBody.style.display==='flex' ? 'none' : 'flex';
-    });
-});
-</script>
+<script src="script.js"></script>
+</body>
+</html>
