@@ -1,8 +1,10 @@
+let notifiedEvents = JSON.parse(localStorage.getItem('notifiedEvents')) || {};
 let events = JSON.parse(localStorage.getItem('events')) || [];
 let weekOffset = 0;
 
 function saveEvents() {
     localStorage.setItem('events', JSON.stringify(events));
+    localStorage.setItem('notifiedEvents', JSON.stringify(notifiedEvents));
 }
 
 function to12Hour(time) {
@@ -23,15 +25,27 @@ function checkNotifications() {
     events.forEach(event => {
         const eventStart = new Date(event.date + 'T' + event.start);
         const diff = eventStart - now;
-        if (diff > 0 && diff <= 10 * 60 * 1000) { // 10 minutes before
+        const eventId = `${event.title}-${event.date}-${event.start}`;
+        if (diff <= 30000 && diff >= -30000 && !notifiedEvents[eventId]) {
             if (Notification.permission === 'granted') {
                 new Notification(`Upcoming Event: ${event.title}`, {
                     body: `Starts at ${event.start} on ${event.date}`
                 });
+                 if (navigator.vibrate) {
+            navigator.vibrate([300, 200, 300]);
             }
         }
+        const sound = document.getElementById('notifySound');
+    if (sound) {
+        sound.currentTime = 0;
+        sound.play().catch(() => {});
+    }
+    notifiedEvents[eventId] = true;
+    localStorage.setItem('notifiedEvents', JSON.stringify(notifiedEvents));
+}
     });
 }
+
 
 function renderSchedule() {
     const scheduleDiv = document.getElementById('weeklySchedule');
@@ -53,7 +67,7 @@ function renderSchedule() {
             usedTimes.add(event.start);
             usedTimes.add(event.end);
         }
-    });
+    }); 
     
     let timeSlots = [];
     if (usedTimes.size > 0) {
@@ -105,6 +119,13 @@ function renderSchedule() {
         timeCell.className = 'time-cell';
         timeCell.textContent = to12Hour(time);
         row.appendChild(timeCell);
+
+        const deleteCell = document.createElement('td'); // add a new cell for the button
+            const deleteBtn = document.createElement('button');
+            deleteBtn.textContent = 'Delete Row';
+            deleteBtn.onclick = () => deleteRow(time); // call the function we will create
+            deleteCell.appendChild(deleteBtn);
+            row.appendChild(deleteCell);
         }
         
         for (let dayIndex = 0; dayIndex < 7; dayIndex++) {
@@ -182,6 +203,15 @@ function deleteEvent(title, date, start) {
         saveEvents();
         renderSchedule();
     }
+}
+
+function deleteRow(time) {
+    if (!confirm(`Delete all events at ${time}?`)) return; 
+
+    
+    events = events.filter(event => event.start !== time);
+    saveEvents();
+    renderSchedule();
 }
 
 document.getElementById('eventform').addEventListener('submit', function(e) {
@@ -267,4 +297,4 @@ document.getElementById('addEventBtn').addEventListener('click', function() {
         document.getElementById('eventDate').value = today;
     }
     formContainer.style.display = formContainer.style.display === 'none' ? 'block' : 'none';
-});
+}); 
