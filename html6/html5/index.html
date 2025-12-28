@@ -8,46 +8,53 @@
 </head>
 <body>
     <div class="container">
+        <!-- Sidebar -->
         <aside class="sidebar">
+            <!-- Chatbot -->
+            <div id="chatbot">
+                <h3>Chatbot</h3>
+                <div id="chatBox"></div>
+                <input type="text" id="chatInput" placeholder="Type a message...">
+                <button id="sendChat">Send</button>
+            </div>
+
+            <!-- Week Controls -->
             <div id="weekControls">
                 <button id="prevWeek">Previous Week</button>
                 <button id="currentWeek">Current Week</button>
                 <button id="nextWeek">Next Week</button>
             </div>
+
+            <!-- Add Event Button -->
             <button id="addEventBtn">Add Event</button>
             <a href="../index.html" class="back-btn">Back to Main</a>
-
-            <!-- Chatbot Section -->
-            <div id="chatbot" style="margin-top:20px;">
-                <h3>Chatbot</h3>
-                <div id="chatBox" style="border:1px solid #ccc; padding:10px; height:200px; overflow-y:auto; background:#fff;"></div>
-                <input type="text" id="chatInput" placeholder="Type a message..." style="width:80%; padding:5px;">
-                <button id="sendChat" style="padding:5px 10px;">Send</button>
-            </div>
         </aside>
 
+        <!-- Main Content -->
         <main class="main-content">
             <h1>My Schedule</h1>
             <div id="currentTime"></div>
-            
+
+            <!-- Event Form -->
             <div id="eventFormContainer" style="display:none;">
                 <form id="eventform">
                     <label for="eventname">Event Title:</label>
-                    <input type="text" id="eventTitle" required><br><br>
-                    
+                    <input type="text" id="eventTitle" required>
+
                     <label for="eventDate">Date:</label>
-                    <input type="date" id="eventDate" required><br><br>
+                    <input type="date" id="eventDate" required>
 
                     <label for="startTime">Start Time:</label>
-                    <input type="time" id="startTime" required><br><br>
+                    <input type="time" id="startTime" required>
 
                     <label for="endTime">End Time:</label>
-                    <input type="time" id="endTime" required><br><br>
+                    <input type="time" id="endTime" required>
 
                     <button type="submit">Add Event</button>   
                 </form>
             </div>
 
+            <!-- Schedule Table -->
             <h2>Weekly Schedule</h2>
             <div id="weeklySchedule"></div>
         </main>
@@ -55,6 +62,6 @@
 
     <script src="script.js"></script>
     <audio id="notifySound" src="short-notification-sound.mp3" preload="auto"></audio>
-
 </body>
 </html>
+
