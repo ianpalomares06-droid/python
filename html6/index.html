@@ -1,4 +1,5 @@
 <script>
+document.addEventListener('DOMContentLoaded', () => {
     // -------------------- User System --------------------
     let users = JSON.parse(localStorage.getItem('users')) || [];
     let currentUser = JSON.parse(localStorage.getItem('currentUser')) || null;
@@ -6,14 +7,17 @@
     function saveUsers() { localStorage.setItem('users', JSON.stringify(users)); }
     function saveCurrentUser() { localStorage.setItem('currentUser', JSON.stringify(currentUser)); }
 
+    const loginForm = document.getElementById('login');
+    const userPanel = document.getElementById('user-panel');
+
     function showLogin() {
-        document.getElementById('login').style.display = 'flex';
-        document.getElementById('user-panel').style.display = 'none';
+        loginForm.style.display = 'flex';
+        userPanel.style.display = 'none';
     }
 
     function showUserPanel() {
-        document.getElementById('login').style.display = 'none';
-        document.getElementById('user-panel').style.display = 'flex';
+        loginForm.style.display = 'none';
+        userPanel.style.display = 'flex';
         document.getElementById('user-name').textContent = currentUser.username;
     }
 
@@ -21,10 +25,11 @@
     if(currentUser) showUserPanel();
     else showLogin();
 
-    document.getElementById('login').addEventListener('submit', e => {
+    // Login
+    loginForm.addEventListener('submit', e => {
         e.preventDefault();
-        const username = document.getElementById('login-username').value;
-        const password = document.getElementById('login-password').value;
+        const username = document.getElementById('login-username').value.trim();
+        const password = document.getElementById('login-password').value.trim();
         const user = users.find(u => u.username === username && u.password === password);
         if(user){
             currentUser = user;
@@ -35,10 +40,11 @@
         }
     });
 
+    // Register
     document.getElementById('register').addEventListener('submit', e => {
         e.preventDefault();
-        const username = document.getElementById('reg-username').value;
-        const password = document.getElementById('reg-password').value;
+        const username = document.getElementById('reg-username').value.trim();
+        const password = document.getElementById('reg-password').value.trim();
         if(users.find(u=>u.username===username)){ 
             alert('Username already exists'); 
         } else { 
@@ -50,14 +56,16 @@
         }
     });
 
+    // Logout
     document.getElementById('logout').addEventListener('click', () => {
         currentUser = null;
         saveCurrentUser();
         showLogin();
     });
 
+    // Delete account
     document.getElementById('delete-account').addEventListener('click', () => { 
-        if(confirm('Are you sure you want to delete your account?')) { 
+        if(currentUser && confirm('Are you sure you want to delete your account?')) { 
             users = users.filter(u => u.username !== currentUser.username); 
             saveUsers(); 
             currentUser = null; 
@@ -65,4 +73,5 @@
             showLogin(); 
         } 
     });
+});
 </script>
