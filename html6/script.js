@@ -29,18 +29,17 @@ document.getElementById('login').addEventListener('submit', e => {
     const password = document.getElementById('login-password').value;
     const user = users.find(u => u.username === username && u.password === password);
     
-    if(user){
+    if (user) {
         currentUser = user;
         saveCurrentUser();
 
         // Redirect to schedule page
-        window.location.href = "schedule.html"; // change to your schedule page name
+        window.location.href = "schedule.html";
 
     } else {
         alert('Invalid username or password');
     }
 });
-
 
     // Register form
     document.getElementById('register').addEventListener('submit', e => {
