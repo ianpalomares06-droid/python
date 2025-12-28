@@ -7,6 +7,7 @@ function saveEvents() {
     localStorage.setItem('notifiedEvents', JSON.stringify(notifiedEvents));
 }
 
+// Convert "HH:MM" to 12-hour format
 function to12Hour(time) {
     const [hour, minute] = time.split(':');
     const h = parseInt(hour);
@@ -58,13 +59,17 @@ function updateCurrentTimeIndicator() {
 function checkNotifications() {
     const now = new Date();
     events.forEach(event => {
-        const eventStart = new Date(event.date + 'T' + event.start);
+        // Treat event date as local date
+        const [year, month, day] = event.date.split('-').map(Number);
+        const [hour, minute] = event.start.split(':').map(Number);
+        const eventStart = new Date(year, month-1, day, hour, minute);
+
         const diff = eventStart - now;
         const eventId = `${event.title}-${event.date}-${event.start}`;
         if (diff <= 30000 && diff >= -30000 && !notifiedEvents[eventId]) {
             if (Notification.permission === 'granted') {
                 new Notification(`Upcoming Event: ${event.title}`, {
-                    body: `Starts at ${event.start} on ${event.date}`
+                    body: `Starts at ${to12Hour(event.start)} on ${event.date}`
                 });
                 if (navigator.vibrate) navigator.vibrate([300,200,300]);
             }
@@ -99,38 +104,45 @@ function renderSchedule() {
     days.forEach((day, index) => {
         const dayDate = new Date(startOfWeek);
         dayDate.setDate(startOfWeek.getDate() + index);
-        const dateStr = dayDate.toISOString().split('T')[0];
+        const dateStr = `${dayDate.getFullYear()}-${String(dayDate.getMonth()+1).padStart(2,'0')}-${String(dayDate.getDate()).padStart(2,'0')}`;
         const th = document.createElement('th');
         th.textContent = `${day}\n${dateStr}`;
         headerRow.appendChild(th);
     });
     table.appendChild(headerRow);
 
-    // Create one row per event
+    // Rows for events
     events.forEach(event => {
-        const eventDate = new Date(event.date);
-        if(eventDate >= startOfWeek && eventDate < new Date(startOfWeek.getTime() + 7*24*60*60*1000)){
+        // Parse date as LOCAL to avoid timezone shifts
+        const [year, month, day] = event.date.split('-').map(Number);
+        const eventDate = new Date(year, month-1, day);
+
+        // Compare eventDate with startOfWeek
+        const weekEnd = new Date(startOfWeek);
+        weekEnd.setDate(startOfWeek.getDate() + 7);
+
+        if(eventDate >= startOfWeek && eventDate < weekEnd){
             const row = document.createElement('tr');
 
-            // Time column shows start-end
+            // Time column shows start-end in 12-hour format
             const timeCell = document.createElement('td');
             timeCell.className = 'time-cell';
-            timeCell.textContent = `${event.start}-${event.end}`;
+            timeCell.textContent = `${to12Hour(event.start)} - ${to12Hour(event.end)}`;
             row.appendChild(timeCell);
 
-            // Add empty cells for 7 days
+            // Empty cells for all 7 days
             for(let i=0; i<7; i++){
                 const cell = document.createElement('td');
                 cell.className = 'schedule-cell';
                 row.appendChild(cell);
             }
 
-            // Place event in the correct day column
-            const dayIndex = Math.floor((eventDate - startOfWeek)/(24*60*60*1000));
+            // Correct day column
+            const dayIndex = eventDate.getDay() === 0 ? 6 : eventDate.getDay() - 1; // Mon=0
             const eventCell = row.cells[dayIndex + 1]; // skip time column
             const eventDiv = document.createElement('div');
             eventDiv.className = 'event';
-            eventDiv.innerHTML = `<strong>${event.title}</strong><br>${event.start}-${event.end}
+            eventDiv.innerHTML = `<strong>${event.title}</strong><br>${to12Hour(event.start)} - ${to12Hour(event.end)}
                 <button onclick="deleteEvent('${event.title}','${event.date}','${event.start}')">×</button>`;
             eventCell.appendChild(eventDiv);
 
@@ -140,7 +152,6 @@ function renderSchedule() {
 
     scheduleDiv.appendChild(table);
 }
-
 
 function deleteEvent(title,date,start){
     const index=events.findIndex(e=>e.title===title && e.date===date && e.start===start);
@@ -179,9 +190,11 @@ document.getElementById('currentWeek').addEventListener('click',()=>{ weekOffset
 document.getElementById('addEventBtn').addEventListener('click',()=>{
     const formContainer=document.getElementById('eventFormContainer');
     if(formContainer.style.display==='none'||formContainer.style.display===''){
-        const today=new Date().toISOString().split('T')[0];
-        document.getElementById('eventDate').value=today;
+        const today=new Date();
+        const todayStr = `${today.getFullYear()}-${String(today.getMonth()+1).padStart(2,'0')}-${String(today.getDate()).padStart(2,'0')}`;
+        document.getElementById('eventDate').value=todayStr;
     }
     formContainer.style.display=(formContainer.style.display==='none'?'block':'none');
 });
+
 renderSchedule();
