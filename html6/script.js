@@ -31,9 +31,8 @@ document.getElementById('login').addEventListener('submit', e => {
     
     if (user) {
         currentUser = user;
-        saveCurrentUser();
-
-        window.location.href = "html5/schedule.html";
+        if (currentUser) {
+    window.location.href = "html5/schedule.html";
 
     } else {
         alert('Invalid username or password');
