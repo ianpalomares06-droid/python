@@ -40,7 +40,7 @@ document.addEventListener('DOMContentLoaded', () => {
             saveCurrentUser();
 
             // 🔹 Redirect to schedule page inside html5 folder
-            window.location.href = "html5/schedule.html";
+            window.location.href = "html5/index.html";
         } else {
             alert('Invalid username or password');
         }
