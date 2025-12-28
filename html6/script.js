@@ -33,7 +33,7 @@ document.getElementById('login').addEventListener('submit', e => {
         currentUser = user;
         saveCurrentUser();
 
-        window.location.href = "schedule.html";
+        window.location.href = "html5/schedule.html";
 
     } else {
         alert('Invalid username or password');
