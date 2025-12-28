@@ -101,10 +101,44 @@
         botTyping(()=> addMessage(botReply(text),'bot'));
     });
 
-    chatInput.addEventListener('keypress', e=>{ if(e.key==='Enter') chatSend.click(); });
+    chatInput.addEventListener('keypress', e=>{
+        if(e.key==='Enter') chatSend.click();
+    });
 
     // -------------------- Toggle Chat --------------------
     document.getElementById('chatbot-header').addEventListener('click', ()=>{
         chatBody.style.display = chatBody.style.display==='flex' ? 'none' : 'flex';
     });
+
+    // -------------------- Quick Reply Buttons --------------------
+    const quickReplies = ['Hello', 'Services', 'Contact', 'About', 'Register'];
+    const quickRepliesContainer = document.createElement('div');
+    quickRepliesContainer.id = 'quick-replies';
+    quickRepliesContainer.style.padding = '5px';
+    quickRepliesContainer.style.display = 'flex';
+    quickRepliesContainer.style.flexWrap = 'wrap';
+    quickRepliesContainer.style.gap = '5px';
+    chatBody.appendChild(quickRepliesContainer);
+
+    function renderQuickReplies() {
+        quickRepliesContainer.innerHTML = '';
+        quickReplies.forEach(text => {
+            const btn = document.createElement('button');
+            btn.textContent = text;
+            btn.style.padding = '5px 10px';
+            btn.style.background = '#007bff';
+            btn.style.color = 'white';
+            btn.style.border = 'none';
+            btn.style.borderRadius = '4px';
+            btn.style.cursor = 'pointer';
+            btn.addEventListener('click', () => {
+                chatInput.value = text;
+                chatSend.click();
+            });
+            quickRepliesContainer.appendChild(btn);
+        });
+    }
+
+    renderQuickReplies();
 </script>
+
