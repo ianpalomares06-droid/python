@@ -31,6 +31,7 @@ document.addEventListener('DOMContentLoaded', () => {
             currentUser = user;
             saveCurrentUser();
             showUserPanel();
+            window.location.href="script.js";
         } else {
             alert('Invalid username or password');
         }
