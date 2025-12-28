@@ -1,4 +1,4 @@
-document.addEventListener('DOMContentLoaded', () => {
+ddocument.addEventListener('DOMContentLoaded', () => {
     // -------------------- User System --------------------
     let users = JSON.parse(localStorage.getItem('users')) || [];
     let currentUser = JSON.parse(localStorage.getItem('currentUser')) || null;
@@ -6,10 +6,10 @@ document.addEventListener('DOMContentLoaded', () => {
     function saveUsers() { localStorage.setItem('users', JSON.stringify(users)); }
     function saveCurrentUser() { localStorage.setItem('currentUser', JSON.stringify(currentUser)); }
 
-    // If user is already logged in, go straight to schedule page
+    // If user is already logged in, redirect to the schedule page in html5 folder
     if (currentUser) {
-        window.location.href = "html5/schedule.html";
-        return; // Stop running further login code
+        window.location.href = "html5/index.html";
+        return;
     }
 
     function showLogin() {
@@ -23,7 +23,7 @@ document.addEventListener('DOMContentLoaded', () => {
         document.getElementById('user-name').textContent = currentUser.username;
     }
 
-    // Display correct view on page load
+    // Show login or user panel
     if (currentUser) showUserPanel();
     else showLogin();
 
@@ -39,10 +39,10 @@ document.addEventListener('DOMContentLoaded', () => {
             currentUser = user;
             saveCurrentUser();
 
-            // 🔹 Redirect to schedule page inside html5 folder
+            // Redirect to schedule page inside html5 folder
             window.location.href = "html5/index.html";
         } else {
-            alert('Invalid username or password');
+            alert("Invalid username or password");
         }
     });
 
@@ -52,12 +52,12 @@ document.addEventListener('DOMContentLoaded', () => {
         const username = document.getElementById('reg-username').value;
         const password = document.getElementById('reg-password').value;
         if (users.find(u => u.username === username)) {
-            alert('Username already exists');
+            alert("Username already exists");
         } else {
             const newUser = { username, password };
             users.push(newUser);
             saveUsers();
-            alert('Registered successfully');
+            alert("Registered successfully");
             document.getElementById('register').reset();
         }
     });
@@ -71,7 +71,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // ----- Delete Account -----
     document.getElementById('delete-account').addEventListener('click', () => {
-        if (confirm('Are you sure you want to delete your account?')) {
+        if (confirm("Are you sure you want to delete your account?")) {
             users = users.filter(u => u.username !== currentUser.username);
             saveUsers();
             currentUser = null;
@@ -79,6 +79,9 @@ document.addEventListener('DOMContentLoaded', () => {
             showLogin();
         }
     });
+
+    // (Your chatbot code continues here as before...)
+});
 
     // -------------------- Chatbot --------------------
     const chatMessages = document.getElementById('chatbot-messages');
