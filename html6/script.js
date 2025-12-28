@@ -21,23 +21,24 @@ document.addEventListener('DOMContentLoaded', () => {
     if(currentUser) showUserPanel();
     else showLogin();
 
-    // Login form
-   // Login form
-document.getElementById('login').addEventListener('submit', e => {
-    e.preventDefault();
-    const username = document.getElementById('login-username').value;
-    const password = document.getElementById('login-password').value;
-    const user = users.find(u => u.username === username && u.password === password);
-    
-    if (user) {
-        currentUser = user;
-        if (currentUser) {
-    window.location.href = "html5/schedule.html";
+if (user) {
+    currentUser = user;
+    saveCurrentUser();
 
-    } else {
-        alert('Invalid username or password');
-    }
-});
+    // Correct redirect to schedule page inside html5 folder
+    window.location.href = "html5/schedule.html";
+} else {
+    alert('Invalid username or password');
+}
+if (user) {
+    currentUser = user;
+    saveCurrentUser();
+
+    // Correct redirect to schedule page inside html5 folder
+    window.location.href = "html5/index.html";
+} else {
+    alert('Invalid username or password');
+}
 
     // Register form
     document.getElementById('register').addEventListener('submit', e => {
