@@ -56,30 +56,53 @@ function updateCurrentTimeIndicator() {
 }
 // -------------------------------------------------------------------
 
+// ---------------- Notification System ----------------
 function checkNotifications() {
     const now = new Date();
+    const todayStr = `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}-${String(now.getDate()).padStart(2,'0')}`;
+
+    // 1️⃣ Daily Reminder at 8 AM
+    const dailyNotificationTime = new Date(todayStr + 'T08:00:00'); // 8:00 AM today
+    if (now >= dailyNotificationTime && !notifiedEvents[`daily-${todayStr}`]) {
+        const todayEvents = events.filter(e => e.date === todayStr);
+        if(todayEvents.length > 0 && Notification.permission === 'granted'){
+            new Notification(`You have ${todayEvents.length} event(s) today!`, {
+                body: 'Check your schedule to see what you need to attend.'
+            });
+            if(navigator.vibrate) navigator.vibrate([200,100,200]);
+        }
+        notifiedEvents[`daily-${todayStr}`] = true;
+        localStorage.setItem('notifiedEvents', JSON.stringify(notifiedEvents));
+    }
+
+    // 2️⃣ Upcoming Event Reminders (10 minutes before)
     events.forEach(event => {
         const [year, month, day] = event.date.split('-').map(Number);
         const [hour, minute] = event.start.split(':').map(Number);
         const eventStart = new Date(year, month-1, day, hour, minute);
 
-        const diff = eventStart - now;
-        const eventId = `${event.title}-${event.date}-${event.start}`;
-        if (diff <= 30000 && diff >= -30000 && !notifiedEvents[eventId]) {
-            if (Notification.permission === 'granted') {
+        const diffMinutes = (eventStart - now) / 60000; // difference in minutes
+        const eventId = `upcoming-${event.title}-${event.date}-${event.start}`;
+
+        if(diffMinutes <= 10 && diffMinutes >= 0 && !notifiedEvents[eventId]){
+            if(Notification.permission === 'granted'){
                 new Notification(`Upcoming Event: ${event.title}`, {
                     body: `Starts at ${to12Hour(event.start)} on ${event.date}`
                 });
-                if (navigator.vibrate) navigator.vibrate([300,200,300]);
+                if(navigator.vibrate) navigator.vibrate([300,200,300]);
             }
+
+            // Optional sound notification
             const sound = document.getElementById('notifySound');
-            if (sound) { sound.currentTime = 0; sound.play().catch(()=>{}); }
+            if(sound){ sound.currentTime=0; sound.play().catch(()=>{}); }
+
             notifiedEvents[eventId] = true;
             localStorage.setItem('notifiedEvents', JSON.stringify(notifiedEvents));
         }
     });
 }
 
+// ---------------- Schedule Rendering ----------------
 function renderSchedule() {
     const scheduleDiv = document.getElementById('weeklySchedule');
     scheduleDiv.innerHTML = '';
@@ -175,10 +198,15 @@ document.getElementById('eventform').addEventListener('submit', function(e){
     document.getElementById('eventFormContainer').style.display='none';
 });
 
-if('Notification' in window) Notification.requestPermission();
+// Request notification permission at the start
+if('Notification' in window && Notification.permission !== 'granted') {
+    Notification.requestPermission();
+}
+
 updateTime();
 setInterval(updateTime,60000);
 setInterval(checkNotifications,60000);
+checkNotifications(); // Run immediately
 
 document.getElementById('prevWeek').addEventListener('click',()=>{ weekOffset--; renderSchedule(); });
 document.getElementById('nextWeek').addEventListener('click',()=>{ weekOffset++; renderSchedule(); });
@@ -194,3 +222,5 @@ document.getElementById('addEventBtn').addEventListener('click',()=>{
 });
 
 renderSchedule();
+
+
