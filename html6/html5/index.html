@@ -16,16 +16,26 @@
             </div>
             <button id="addEventBtn">Add Event</button>
             <a href="../index.html" class="back-btn">Back to Main</a>
+
+            <!-- Chatbot Section -->
+            <div id="chatbot" style="margin-top:20px;">
+                <h3>Chatbot</h3>
+                <div id="chatBox" style="border:1px solid #ccc; padding:10px; height:200px; overflow-y:auto; background:#fff;"></div>
+                <input type="text" id="chatInput" placeholder="Type a message..." style="width:80%; padding:5px;">
+                <button id="sendChat" style="padding:5px 10px;">Send</button>
+            </div>
         </aside>
+
         <main class="main-content">
             <h1>My Schedule</h1>
             <div id="currentTime"></div>
+            
             <div id="eventFormContainer" style="display:none;">
                 <form id="eventform">
                     <label for="eventname">Event Title:</label>
                     <input type="text" id="eventTitle" required><br><br>
                     
-                    <label for="eventDate">Data:</label>
+                    <label for="eventDate">Date:</label>
                     <input type="date" id="eventDate" required><br><br>
 
                     <label for="startTime">Start Time:</label>
@@ -37,6 +47,7 @@
                     <button type="submit">Add Event</button>   
                 </form>
             </div>
+
             <h2>Weekly Schedule</h2>
             <div id="weeklySchedule"></div>
         </main>
