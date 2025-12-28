@@ -17,28 +17,23 @@ document.addEventListener('DOMContentLoaded', () => {
         document.getElementById('user-name').textContent = currentUser.username;
     }
 
-    // Display correct panel on page load
-    if(currentUser) showUserPanel();
-    else showLogin();
+    document.getElementById('login').addEventListener('submit', e => {
+        e.preventDefault();
+        const username = document.getElementById('login-username').value;
+        const password = document.getElementById('login-password').value;
 
-if (user) {
-    currentUser = user;
-    saveCurrentUser();
+        const user = users.find(u => u.username === username && u.password === password);
 
-    // Correct redirect to schedule page inside html5 folder
-    window.location.href = "html5/schedule.html";
-} else {
-    alert('Invalid username or password');
-}
-if (user) {
-    currentUser = user;
-    saveCurrentUser();
+        if (user) {
+            currentUser = user;
+            saveCurrentUser();
 
-  
-    window.location.href = "html6/index.html";
-} else {
-    alert('Invalid username or password');
-}
+            // — Redirect to schedule page inside html5 folder —
+            window.location.href = "html5/index.html";
+        } else {
+            alert('Invalid username or password');
+        }
+    });
 
     // Register form
     document.getElementById('register').addEventListener('submit', e => {
