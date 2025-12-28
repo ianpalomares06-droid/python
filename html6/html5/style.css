@@ -24,33 +24,6 @@ body {
     margin-right: 20px;
 }
 
-/* Chatbot */
-#chatbot {
-    margin-bottom: 30px;
-}
-#chatbot h3 {
-    margin-top: 0;
-}
-#chatBox {
-    border:1px solid #ccc;
-    padding:10px;
-    height:200px;
-    overflow-y:auto;
-    background:#fff;
-    margin-bottom:10px;
-    border-radius: 4px;
-}
-#chatInput {
-    width: calc(100% - 70px);
-    padding: 8px;
-    margin-right: 5px;
-    box-sizing: border-box;
-}
-#sendChat {
-    padding: 8px 12px;
-    cursor: pointer;
-}
-
 /* Main Content */
 .main-content {
     flex: 1;
@@ -231,16 +204,6 @@ button:hover {
         width: 100%;
         margin-right: 0;
         margin-bottom: 20px;
-    }
-
-    #chatInput {
-        width: 70%;
-        margin-bottom: 10px;
-    }
-
-    #sendChat {
-        width: 28%;
-        display: inline-block;
     }
 
     form {
