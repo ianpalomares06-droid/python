@@ -5,6 +5,14 @@ function saveEvents() {
     localStorage.setItem('events', JSON.stringify(events));
 }
 
+function to12Hour(time) {
+    const [hour, minute] = time.split(':');
+    const h = parseInt(hour);
+    const ampm = h >= 12 ? 'PM' : 'AM';
+    const displayHour = h % 12 || 12;
+    return `${displayHour}:${minute} ${ampm}`;
+}
+
 function updateTime() {
     const now = new Date();
     document.getElementById('currentTime').textContent = `Current Time: ${now.toLocaleString()}`;
@@ -29,11 +37,6 @@ function renderSchedule() {
     const scheduleDiv = document.getElementById('weeklySchedule');
     scheduleDiv.innerHTML = '';
     
-    const timeSlots = ['08:00', '08:30', '09:00', '09:30', '10:00', '10:30', '11:00', '11:30', '12:00', '12:30', '13:00', '13:30', '14:00', '14:30', '15:00', '15:30', '16:00', '16:30', '17:00', '17:30', '18:00', '18:30', '19:00', '19:30', '20:00'];
-    
-    const table = document.createElement('table');
-    table.className = 'schedule-table';
-    
     // Get the start of the week (Monday)
     const now = new Date();
     const dayOfWeek = now.getDay(); // 0 = Sunday, 1 = Monday, etc.
@@ -42,11 +45,46 @@ function renderSchedule() {
     
     const days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
     
+    // Collect used times
+    let usedTimes = new Set();
+    events.forEach(event => {
+        const eventDate = new Date(event.date);
+        if (eventDate >= startOfWeek && eventDate < new Date(startOfWeek.getTime() + 7 * 24 * 60 * 60 * 1000)) {
+            usedTimes.add(event.start);
+            usedTimes.add(event.end);
+        }
+    });
+    
+    let timeSlots = [];
+    if (usedTimes.size > 0) {
+        let timesArray = Array.from(usedTimes).sort();
+        let minTime = timesArray[0];
+        let maxTime = timesArray[timesArray.length - 1];
+        
+        let current = minTime;
+        while (current <= maxTime) {
+            timeSlots.push(current);
+            let [h, m] = current.split(':').map(Number);
+            m += 30;
+            if (m >= 60) {
+                h += 1;
+                m -= 60;
+            }
+            current = `${h.toString().padStart(2,'0')}:${m.toString().padStart(2,'0')}`;
+        }
+    }
+    const hasTimeSlots = timeSlots.length > 0;  
+    
+    const table = document.createElement('table');
+    table.className = 'schedule-table';
+    
     // Header row
     const headerRow = document.createElement('tr');
+    if (hasTimeSlots){
     const timeHeader = document.createElement('th');
     timeHeader.textContent = 'Time';
     headerRow.appendChild(timeHeader);
+    }
     days.forEach((day, index) => {
         const dayDate = new Date(startOfWeek);
         dayDate.setDate(startOfWeek.getDate() + index);
@@ -61,11 +99,13 @@ function renderSchedule() {
     // Time rows
     timeSlots.forEach((time, slotIndex) => {
         const row = document.createElement('tr');
+        if (hasTimeSlots){
         
         const timeCell = document.createElement('td');
         timeCell.className = 'time-cell';
-        timeCell.textContent = time;
+        timeCell.textContent = to12Hour(time);
         row.appendChild(timeCell);
+        }
         
         for (let dayIndex = 0; dayIndex < 7; dayIndex++) {
             const cell = document.createElement('td');
@@ -105,14 +145,15 @@ function renderSchedule() {
                 
                 eventDiv.innerHTML = `
                     <strong>${event.title}</strong><br>
-                    ${event.start} - ${event.end}
+                    ${to12Hour(event.start)} - ${to12Hour(event.end)}
                     ${hasConflict ? '<br><em style="color: red;">Conflict!</em>' : ''}
                     <button onclick="deleteEvent('${event.title}', '${event.date}', '${event.start}')">Delete</button>
                 `;
                 
                 // Find the cell for start time
                 const startRow = table.rows[startSlotIndex + 1]; // +1 for header
-                const startCell = startRow.cells[dayIndex + 1]; // +1 for time column
+                const columnOffset = hasTimeSlots ? 1 : 0;
+                const startCell = startRow.cells[dayIndex + columnOffset]; 
                 startCell.appendChild(eventDiv);
                 
                 // Span multiple rows if needed
@@ -122,7 +163,9 @@ function renderSchedule() {
                     // Remove extra cells from subsequent rows
                     for (let i = 1; i < rowSpan; i++) {
                         const spannedRow = table.rows[startSlotIndex + 1 + i];
-                        spannedRow.deleteCell(dayIndex + 1);
+                        if (spannedRow) {
+                            spannedRow.deleteCell(dayIndex + columnOffset);
+                        }
                     }
                 }
             }
@@ -218,5 +261,10 @@ renderSchedule();
 // Add event button
 document.getElementById('addEventBtn').addEventListener('click', function() {
     const formContainer = document.getElementById('eventFormContainer');
+    if (formContainer.style.display === 'none' || formContainer.style.display === '') {
+        // Set default date to today
+        const today = new Date().toISOString().split('T')[0];
+        document.getElementById('eventDate').value = today;
+    }
     formContainer.style.display = formContainer.style.display === 'none' ? 'block' : 'none';
 });
