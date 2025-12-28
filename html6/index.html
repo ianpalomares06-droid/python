@@ -5,14 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>My Website</title>
 <style>
-    body {
-        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-        margin: 0;
-        padding: 0;
-        background-color: #f8f9fa;
-        color: #333;
-        line-height: 1.6;
-    }
+    body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; margin: 0; padding: 0; background-color: #f8f9fa; color: #333; line-height: 1.6; }
     header { background-color: #007bff; color: white; padding: 1rem; display: flex; justify-content: space-between; align-items: center; }
     .dropdown { position: relative; display: inline-block; }
     .dropbtn { background-color: #007bff; color: white; padding: 0.5rem; border: none; cursor: pointer; font-weight: bold; }
@@ -46,6 +39,7 @@
     /* Chatbox */
     #chatbot-container { position: fixed; bottom: 20px; right: 20px; width: 300px; max-width: 90%; background: #fff; border-radius: 10px; box-shadow: 0 4px 10px rgba(0,0,0,0.2); display: flex; flex-direction: column; overflow: hidden; z-index: 1000; }
     #chatbot-header { background: #007bff; color: white; padding: 10px; text-align: center; font-weight: bold; cursor: pointer; }
+    #chatbot-body { display: none; flex-direction: column; }
     #chatbot-messages { padding: 10px; height: 200px; overflow-y: auto; flex-grow: 1; background: #f1f1f1; }
     #chatbot-input { padding: 8px; border: none; border-top: 1px solid #ccc; width: calc(100% - 60px); box-sizing: border-box; }
     #chatbot-send { width: 50px; border: none; background: #007bff; color: white; cursor: pointer; }
@@ -124,9 +118,11 @@
 <!-- Chatbox -->
 <div id="chatbot-container">
     <div id="chatbot-header">Chat with us!</div>
-    <div id="chatbot-messages"></div>
-    <input type="text" id="chatbot-input" placeholder="Type your message...">
-    <button id="chatbot-send">Send</button>
+    <div id="chatbot-body">
+        <div id="chatbot-messages"></div>
+        <input type="text" id="chatbot-input" placeholder="Type your message...">
+        <button id="chatbot-send">Send</button>
+    </div>
 </div>
 
 <script>
@@ -136,12 +132,12 @@
 
     function saveUsers() { localStorage.setItem('users', JSON.stringify(users)); }
 
-    document.getElementById('login').addEventListener('submit', function(e) {
+    document.getElementById('login').addEventListener('submit', e => {
         e.preventDefault();
         window.location.href = 'html5/index.html';
     });
 
-    document.getElementById('register').addEventListener('submit', function(e) {
+    document.getElementById('register').addEventListener('submit', e => {
         e.preventDefault();
         const username = document.getElementById('reg-username').value;
         const password = document.getElementById('reg-password').value;
@@ -149,8 +145,8 @@
         else { users.push({username,password}); saveUsers(); alert('Registered successfully'); document.getElementById('register').reset(); }
     });
 
-    document.getElementById('logout').addEventListener('click', function() { currentUser=null; showLogin(); });
-    document.getElementById('delete-account').addEventListener('click', function() { 
+    document.getElementById('logout').addEventListener('click', () => { currentUser=null; showLogin(); });
+    document.getElementById('delete-account').addEventListener('click', () => { 
         if(confirm('Are you sure you want to delete your account?')) { 
             users=users.filter(u=>u.username!==currentUser.username); saveUsers(); currentUser=null; showLogin(); 
         } 
@@ -158,13 +154,13 @@
 
     function showLogin(){ document.getElementById('login').style.display='flex'; document.getElementById('user-panel').style.display='none'; }
     function showUserPanel(){ document.getElementById('login').style.display='none'; document.getElementById('user-panel').style.display='flex'; document.getElementById('user-name').textContent=currentUser.username; }
-
     showLogin();
 
     // -------------------- Chatbot --------------------
-    const chatMessages=document.getElementById('chatbot-messages');
-    const chatInput=document.getElementById('chatbot-input');
-    const chatSend=document.getElementById('chatbot-send');
+    const chatMessages = document.getElementById('chatbot-messages');
+    const chatInput = document.getElementById('chatbot-input');
+    const chatSend = document.getElementById('chatbot-send');
+    const chatBody = document.getElementById('chatbot-body');
     let conversationHistory=[];
 
     function addMessage(message,sender='user'){
@@ -179,39 +175,30 @@
 
     function botReply(userText){
         const text=userText.toLowerCase();
-        let lastBot='';
-        for(let i=conversationHistory.length-1;i>=0;i--){
-            if(conversationHistory[i].sender==='bot'){ lastBot=conversationHistory[i].message.toLowerCase(); break; }
-        }
         if(text.includes('hello')||text.includes('hi')) return "Hello! How can I assist you today?";
         if(text.includes('services')) return "We offer Web Development, Design Consulting, SEO Optimization, and Customer Support.";
         if(text.includes('contact')||text.includes('email')||text.includes('phone')) return "You can reach us at info@mywebsite.com or call (123) 456-7890.";
         if(text.includes('about')) return "We are a dedicated team providing high-quality services. Our mission is to deliver excellence!";
         if(text.includes('register')||text.includes('sign up')) return "You can register using the form in the Register section.";
-        if(lastBot.includes('services')){
-            if(text.includes('pricing')) return "Our service prices vary depending on the project. Please contact us for a quote.";
-            if(text.includes('details')) return "Each service comes with a dedicated plan. We can provide a detailed brochure if needed.";
-        }
         return "I'm sorry, I don't fully understand. Can you rephrase your question?";
     }
 
     chatSend.addEventListener('click', ()=>{
-        const text=chatInput.value.trim(); if(text==='') return;
-        addMessage(text,'user'); chatInput.value='';
+        const text=chatInput.value.trim(); 
+        if(text==='') return;
+        addMessage(text,'user'); 
+        chatInput.value='';
         setTimeout(()=>{ addMessage(botReply(text),'bot'); },500);
     });
 
-    chatInput.addEventListener('keypress',(e)=>{ if(e.key==='Enter') chatSend.click(); });
+    chatInput.addEventListener('keypress', e=>{ if(e.key==='Enter') chatSend.click(); });
 
-    // Optional: toggle chat visibility
-    document.getElementById('chatbot-header').addEventListener('click',()=>{
-        const container=document.getElementById('chatbot-container');
-        const msgs=document.getElementById('chatbot-messages');
-        const input=document.getElementById('chatbot-input');
-        const send=document.getElementById('chatbot-send');
-        if(msgs.style.display==='none'){ msgs.style.display='block'; input.style.display='block'; send.style.display='block'; }
-        else { msgs.style.display='none'; input.style.display='none'; send.style.display='none'; }
+    // -------------------- Toggle Chat --------------------
+    document.getElementById('chatbot-header').addEventListener('click', ()=>{
+        if(chatBody.style.display==='flex') chatBody.style.display='none';
+        else chatBody.style.display='flex';
     });
 </script>
 </body>
 </html>
+
