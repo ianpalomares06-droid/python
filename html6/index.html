@@ -1,111 +1,157 @@
-<body>
-    <header>
-        <!-- existing header content -->
-    </header>
-    <main>
-        <!-- existing main content -->
-    </main>
-    <footer>
-        <p>&copy; 2025 My Website. All rights reserved.</p>
-    </footer>
-
-    <!-- Chatbox -->
-    <div id="chatbot-container">
-        <div id="chatbot-header">Chat with us!</div>
-        <div id="chatbot-messages"></div>
-        <input type="text" id="chatbot-input" placeholder="Type your message...">
-        <button id="chatbot-send">Send</button>
-    </div>
-
-    <script>
-        // Existing JS for login/registration
-        let users = JSON.parse(localStorage.getItem('users')) || [];
-        let currentUser = null;
-
-        function saveUsers() {
-            localStorage.setItem('users', JSON.stringify(users));
-        }
-
-        document.getElementById('login').addEventListener('submit', function(e) {
-            e.preventDefault();
-            window.location.href = 'html5/index.html';
-        });
-
-        document.getElementById('register').addEventListener('submit', function(e) {
-            e.preventDefault();
-            const username = document.getElementById('reg-username').value;
-            const password = document.getElementById('reg-password').value;
-            if (users.find(u => u.username === username)) {
-                alert('Username already exists');
-            } else {
-                users.push({username, password});
-                saveUsers();
-                alert('Registered successfully');
-                document.getElementById('register').reset();
-            }
-        });
-
-        document.getElementById('logout').addEventListener('click', function() {
-            currentUser = null;
-            showLogin();
-        });
-
-        document.getElementById('delete-account').addEventListener('click', function() {
-            if (confirm('Are you sure you want to delete your account?')) {
-                users = users.filter(u => u.username !== currentUser.username);
-                saveUsers();
-                currentUser = null;
-                showLogin();
-            }
-        });
-
-        function showLogin() {
-            document.getElementById('login').style.display = 'flex';
-            document.getElementById('user-panel').style.display = 'none';
-        }
-
-        function showUserPanel() {
-            document.getElementById('login').style.display = 'none';
-            document.getElementById('user-panel').style.display = 'flex';
-            document.getElementById('user-name').textContent = currentUser.username;
-        }
-
-        // Initialize
-        showLogin();
-
-        // -------------------- Chatbot JS --------------------
-        const chatMessages = document.getElementById('chatbot-messages');
-        const chatInput = document.getElementById('chatbot-input');
-        const chatSend = document.getElementById('chatbot-send');
-
-        function addMessage(message, sender='user') {
-            const msgDiv = document.createElement('div');
-            msgDiv.className = sender === 'user' ? 'chat-msg user-msg' : 'chat-msg bot-msg';
-            msgDiv.textContent = message;
-            chatMessages.appendChild(msgDiv);
-            chatMessages.scrollTop = chatMessages.scrollHeight;
-        }
-
-        chatSend.addEventListener('click', () => {
-            const text = chatInput.value.trim();
-            if(text === '') return;
-            addMessage(text, 'user');
-            chatInput.value = '';
-
-            // Simple bot reply
-            setTimeout(() => {
-                addMessage("Thanks for your message! We'll get back to you soon.", 'bot');
-            }, 500);
-        });
-
-        chatInput.addEventListener('keypress', (e) => {
-            if(e.key === 'Enter') {
-                chatSend.click();
-            }
-        });
-    </script>
-
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Website</title>
     <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f8f9fa;
+            color: #333;
+            line-height: 1.6;
+        }
+        header {
+            background-color: #007bff;
+            color: white;
+            padding: 1rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .dropdown {
+            position: relative;
+            display: inline-block;
+        }
+        .dropbtn {
+            background-color: #007bff;
+            color: white;
+            padding: 0.5rem;
+            border: none;
+            cursor: pointer;
+            font-weight: bold;
+        }
+        .dropdown-content {
+            display: none;
+            position: absolute;
+            background-color: #f9f9f9;
+            min-width: 160px;
+            box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+            z-index: 1;
+        }
+        .dropdown-content a {
+            color: black;
+            padding: 12px 16px;
+            text-decoration: none;
+            display: block;
+        }
+        .dropdown-content a:hover {background-color: #f1f1f1}
+        .dropdown:hover .dropdown-content {display: block;}
+        .dropdown:hover .dropbtn {background-color: #0056b3;}
+        h1 {
+            flex: 1;
+            text-align: center;
+            color: white;
+        }
+        .login-container {
+            display: flex;
+            align-items: center;
+        }
+        .login-container form {
+            display: flex;
+            align-items: center;
+        }
+        .login-container label {
+            margin: 0 0.5rem;
+        }
+        .login-container input {
+            padding: 0.3rem;
+            margin: 0 0.2rem;
+        }
+        nav {
+            background-color: #0056b3;
+            padding: 0.5rem;
+        }
+        nav ul {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+            display: flex;
+            justify-content: center;
+        }
+        nav li {
+            margin: 0 1rem;
+        }
+        nav a {
+            color: white;
+            text-decoration: none;
+            font-weight: bold;
+        }
+        nav a:hover {
+            text-decoration: underline;
+        }
+        main {
+            max-width: 1200px;
+            margin: 2rem auto;
+            padding: 0 1rem;
+        }
+        section {
+            margin-bottom: 2rem;
+            padding: 1rem;
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        h1, h2 {
+            color: #007bff;
+        }
+        footer {
+            background-color: #343a40;
+            color: white;
+            text-align: center;
+            padding: 1rem 0;
+            margin-top: 2rem;
+        }
+        .hero {
+            text-align: center;
+            padding: 2rem 0;
+        }
+        .btn {
+            display: inline-block;
+            padding: 0.5rem 1rem;
+            background-color: #28a745;
+            color: white;
+            text-decoration: none;
+            border-radius: 4px;
+            margin-top: 1rem;
+        }
+        .btn:hover {
+            background-color: #218838;
+        }
+        form label {
+            display: block;
+            margin-bottom: 0.5rem;
+        }
+        input {
+            padding: 0.5rem;
+            margin-bottom: 1rem;
+            width: 100%;
+            max-width: 300px;
+        }
+        button {
+            padding: 0.5rem 1rem;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+
         /* Chatbox styles */
         #chatbot-container {
             position: fixed;
@@ -186,4 +232,184 @@
             }
         }
     </style>
+</head>
+<body>
+    <header>
+        <div class="dropdown">
+            <button class="dropbtn">Menu ▼</button>
+            <div class="dropdown-content">
+                <a href="#home">Home</a>
+                <a href="#about">About</a>
+                <a href="#services">Services</a>
+                <a href="#contact">Contact</a>
+                <a href="#auth">Register</a>
+            </div>
+        </div>
+        <h1>My Professional Website</h1>
+        <div class="login-container">
+            <form id="login">
+                <label>Username: <input type="text" id="login-username" required></label>
+                <label>Password: <input type="password" id="login-password" required></label>
+                <button type="submit">Login</button>
+            </form>
+            <div id="user-panel" style="display:none;">
+                Welcome, <span id="user-name"></span> 
+                <button id="logout">Logout</button> 
+                <button id="delete-account">Delete</button>
+            </div>
+        </div>
+    </header>
+
+    <main>
+        <section id="home" class="hero">
+            <h2>Welcome to My Website</h2>
+            <p>This is a professional-looking website built with HTML and CSS. Discover more about what we offer.</p>
+            <a href="#about" class="btn">Learn More</a>
+        </section>
+        <section id="about">
+            <h2>About Us</h2>
+            <p>We are a dedicated team providing high-quality services. Our mission is to deliver excellence in everything we do.</p>
+        </section>
+        <section id="services">
+            <h2>Our Services</h2>
+            <ul>
+                <li>Web Development</li>
+                <li>Design Consulting</li>
+                <li>SEO Optimization</li>
+                <li>Customer Support</li>
+            </ul>
+        </section>
+        <section id="contact">
+            <h2>Contact Us</h2>
+            <p>Get in touch with us today!</p>
+            <p>Email: info@mywebsite.com</p>
+            <p>Phone: (123) 456-7890</p>
+        </section>
+        <section id="auth">
+            <h2>Register</h2>
+            <div id="register-form">
+                <form id="register">
+                    <label>Username: <input type="text" id="reg-username" required></label><br>
+                    <label>Password: <input type="password" id="reg-password" required></label><br>
+                    <button type="submit">Register</button>
+                </form>
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        <p>&copy; 2025 My Website. All rights reserved.</p>
+    </footer>
+
+    <!-- Chatbox -->
+    <div id="chatbot-container">
+        <div id="chatbot-header">Chat with us!</div>
+        <div id="chatbot-messages"></div>
+        <input type="text" id="chatbot-input" placeholder="Type your message...">
+        <button id="chatbot-send">Send</button>
+    </div>
+
+    <script>
+        // -------------------- User System --------------------
+        let users = JSON.parse(localStorage.getItem('users')) || [];
+        let currentUser = null;
+
+        function saveUsers() {
+            localStorage.setItem('users', JSON.stringify(users));
+        }
+
+        document.getElementById('login').addEventListener('submit', function(e) {
+            e.preventDefault();
+            window.location.href = 'html5/index.html';
+        });
+
+        document.getElementById('register').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const username = document.getElementById('reg-username').value;
+            const password = document.getElementById('reg-password').value;
+            if (users.find(u => u.username === username)) {
+                alert('Username already exists');
+            } else {
+                users.push({username, password});
+                saveUsers();
+                alert('Registered successfully');
+                document.getElementById('register').reset();
+            }
+        });
+
+        document.getElementById('logout').addEventListener('click', function() {
+            currentUser = null;
+            showLogin();
+        });
+
+        document.getElementById('delete-account').addEventListener('click', function() {
+            if (confirm('Are you sure you want to delete your account?')) {
+                users = users.filter(u => u.username !== currentUser.username);
+                saveUsers();
+                currentUser = null;
+                showLogin();
+            }
+        });
+
+        function showLogin() {
+            document.getElementById('login').style.display = 'flex';
+            document.getElementById('user-panel').style.display = 'none';
+        }
+
+        function showUserPanel() {
+            document.getElementById('login').style.display = 'none';
+            document.getElementById('user-panel').style.display = 'flex';
+            document.getElementById('user-name').textContent = currentUser.username;
+        }
+
+        showLogin();
+
+        // -------------------- Chatbot JS --------------------
+        const chatMessages = document.getElementById('chatbot-messages');
+        const chatInput = document.getElementById('chatbot-input');
+        const chatSend = document.getElementById('chatbot-send');
+
+        function addMessage(message, sender='user') {
+            const msgDiv = document.createElement('div');
+            msgDiv.className = sender === 'user' ? 'chat-msg user-msg' : 'chat-msg bot-msg';
+            msgDiv.textContent = message;
+            chatMessages.appendChild(msgDiv);
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+        }
+
+        function botReply(userText) {
+            const text = userText.toLowerCase();
+            if(text.includes('hello') || text.includes('hi')) {
+                return "Hello! How can I help you today?";
+            } else if(text.includes('services')) {
+                return "We offer Web Development, Design Consulting, SEO Optimization, and Customer Support.";
+            } else if(text.includes('contact') || text.includes('email') || text.includes('phone')) {
+                return "You can reach us at info@mywebsite.com or call (123) 456-7890.";
+            } else if(text.includes('about')) {
+                return "We are a dedicated team providing high-quality services. Our mission is to deliver excellence!";
+            } else if(text.includes('register') || text.includes('sign up')) {
+                return "You can register using the form in the Register section.";
+            } else {
+                return "I'm sorry, I don't fully understand. Can you rephrase your question?";
+            }
+        }
+
+        chatSend.addEventListener('click', () => {
+            const text = chatInput.value.trim();
+            if(text === '') return;
+            addMessage(text, 'user');
+            chatInput.value = '';
+
+            setTimeout(() => {
+                addMessage(botReply(text), 'bot');
+            }, 500);
+        });
+
+        chatInput.addEventListener('keypress', (e) => {
+            if(e.key === 'Enter') {
+                chatSend.click();
+            }
+        });
+    </script>
 </body>
+</html>
