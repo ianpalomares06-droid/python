@@ -1,10 +1,15 @@
-ddocument.addEventListener('DOMContentLoaded', () => {
+document.addEventListener('DOMContentLoaded', () => {
     // -------------------- User System --------------------
     let users = JSON.parse(localStorage.getItem('users')) || [];
     let currentUser = JSON.parse(localStorage.getItem('currentUser')) || null;
 
-    function saveUsers() { localStorage.setItem('users', JSON.stringify(users)); }
-    function saveCurrentUser() { localStorage.setItem('currentUser', JSON.stringify(currentUser)); }
+    function saveUsers() {
+        localStorage.setItem('users', JSON.stringify(users));
+    }
+
+    function saveCurrentUser() {
+        localStorage.setItem('currentUser', JSON.stringify(currentUser));
+    }
 
     // If user is already logged in, redirect to the schedule page in html5 folder
     if (currentUser) {
@@ -13,75 +18,89 @@ ddocument.addEventListener('DOMContentLoaded', () => {
     }
 
     function showLogin() {
-        document.getElementById('login').style.display = 'flex';
-        document.getElementById('user-panel').style.display = 'none';
+        const loginForm = document.getElementById('login');
+        const userPanel = document.getElementById('user-panel');
+        if (loginForm) loginForm.style.display = 'flex';
+        if (userPanel) userPanel.style.display = 'none';
     }
 
     function showUserPanel() {
-        document.getElementById('login').style.display = 'none';
-        document.getElementById('user-panel').style.display = 'flex';
-        document.getElementById('user-name').textContent = currentUser.username;
+        const loginForm = document.getElementById('login');
+        const userPanel = document.getElementById('user-panel');
+        if (loginForm) loginForm.style.display = 'none';
+        if (userPanel) {
+            userPanel.style.display = 'flex';
+            document.getElementById('user-name').textContent = currentUser ? currentUser.username : '';
+        }
     }
 
-    // Show login or user panel
+    // Display the correct UI
     if (currentUser) showUserPanel();
     else showLogin();
 
     // ----- Login Form -----
-    document.getElementById('login').addEventListener('submit', e => {
-        e.preventDefault();
-        const username = document.getElementById('login-username').value;
-        const password = document.getElementById('login-password').value;
+    const loginForm = document.getElementById('login');
+    if (loginForm) {
+        loginForm.addEventListener('submit', e => {
+            e.preventDefault();
+            const username = document.getElementById('login-username').value;
+            const password = document.getElementById('login-password').value;
 
-        const user = users.find(u => u.username === username && u.password === password);
+            const user = users.find(u => u.username === username && u.password === password);
 
-        if (user) {
-            currentUser = user;
-            saveCurrentUser();
-
-            // Redirect to schedule page inside html5 folder
-            window.location.href = "html5/index.html";
-        } else {
-            alert("Invalid username or password");
-        }
-    });
+            if (user) {
+                currentUser = user;
+                saveCurrentUser();
+                window.location.href = "html5/index.html"; // Correct redirect
+            } else {
+                alert("Invalid username or password");
+            }
+        });
+    }
 
     // ----- Register Form -----
-    document.getElementById('register').addEventListener('submit', e => {
-        e.preventDefault();
-        const username = document.getElementById('reg-username').value;
-        const password = document.getElementById('reg-password').value;
-        if (users.find(u => u.username === username)) {
-            alert("Username already exists");
-        } else {
-            const newUser = { username, password };
-            users.push(newUser);
-            saveUsers();
-            alert("Registered successfully");
-            document.getElementById('register').reset();
-        }
-    });
+    const registerForm = document.getElementById('register');
+    if (registerForm) {
+        registerForm.addEventListener('submit', e => {
+            e.preventDefault();
+            const username = document.getElementById('reg-username').value;
+            const password = document.getElementById('reg-password').value;
+
+            if (users.find(u => u.username === username)) {
+                alert("Username already exists");
+            } else {
+                const newUser = { username, password };
+                users.push(newUser);
+                saveUsers();
+                alert("Registered successfully");
+                registerForm.reset();
+            }
+        });
+    }
 
     // ----- Logout -----
-    document.getElementById('logout').addEventListener('click', () => {
-        currentUser = null;
-        saveCurrentUser();
-        showLogin();
-    });
-
-    // ----- Delete Account -----
-    document.getElementById('delete-account').addEventListener('click', () => {
-        if (confirm("Are you sure you want to delete your account?")) {
-            users = users.filter(u => u.username !== currentUser.username);
-            saveUsers();
+    const logoutBtn = document.getElementById('logout');
+    if (logoutBtn) {
+        logoutBtn.addEventListener('click', () => {
             currentUser = null;
             saveCurrentUser();
             showLogin();
-        }
-    });
+        });
+    }
 
-    // (Your chatbot code continues here as before...)
-});
+    // ----- Delete Account -----
+    const deleteBtn = document.getElementById('delete-account');
+    if (deleteBtn) {
+        deleteBtn.addEventListener('click', () => {
+            if (confirm("Are you sure you want to delete your account?")) {
+                users = users.filter(u => u.username !== currentUser.username);
+                saveUsers();
+                currentUser = null;
+                saveCurrentUser();
+                showLogin();
+            }
+        });
+    }
 
     // -------------------- Chatbot --------------------
     const chatMessages = document.getElementById('chatbot-messages');
@@ -92,14 +111,15 @@ ddocument.addEventListener('DOMContentLoaded', () => {
     let conversationHistory = JSON.parse(localStorage.getItem('chatHistory')) || [];
     conversationHistory.forEach(msg => addMessage(msg.message, msg.sender));
 
-    function addMessage(message, sender='user') {
+    function addMessage(message, sender = 'user') {
+        if (!chatMessages) return;
         const msgDiv = document.createElement('div');
         msgDiv.className = sender === 'user' ? 'chat-msg user-msg' : 'chat-msg bot-msg';
         msgDiv.textContent = message;
         chatMessages.appendChild(msgDiv);
         chatMessages.scrollTop = chatMessages.scrollHeight;
 
-        conversationHistory.push({sender, message});
+        conversationHistory.push({ sender, message });
         if (conversationHistory.length > 50) conversationHistory.shift();
         localStorage.setItem('chatHistory', JSON.stringify(conversationHistory));
     }
@@ -117,6 +137,7 @@ ddocument.addEventListener('DOMContentLoaded', () => {
     }
 
     function botTyping(callback) {
+        if (!chatMessages) return;
         const typingDiv = document.createElement('div');
         typingDiv.className = 'chat-msg bot-msg';
         typingDiv.textContent = 'Bot is typing...';
@@ -129,19 +150,26 @@ ddocument.addEventListener('DOMContentLoaded', () => {
         }, 800 + Math.random() * 700);
     }
 
-    chatSend.addEventListener('click', () => {
-        const text = chatInput.value.trim();
-        if (text === '') return;
-        addMessage(text, 'user');
-        chatInput.value = '';
-        botTyping(() => addMessage(botReply(text), 'bot'));
-    });
+    if (chatSend) {
+        chatSend.addEventListener('click', () => {
+            const text = chatInput ? chatInput.value.trim() : "";
+            if (text === '') return;
+            addMessage(text, 'user');
+            if (chatInput) chatInput.value = '';
+            botTyping(() => addMessage(botReply(text), 'bot'));
+        });
+    }
 
-    chatInput.addEventListener('keypress', e => {
-        if (e.key === 'Enter') chatSend.click();
-    });
+    if (chatInput) {
+        chatInput.addEventListener('keypress', e => {
+            if (e.key === 'Enter' && chatSend) chatSend.click();
+        });
+    }
 
-    document.getElementById('chatbot-header').addEventListener('click', () => {
-        chatBody.style.display = chatBody.style.display === 'flex' ? 'none' : 'flex';
-    });
+    const chatbotHeader = document.getElementById('chatbot-header');
+    if (chatbotHeader && chatBody) {
+        chatbotHeader.addEventListener('click', () => {
+            chatBody.style.display = chatBody.style.display === 'flex' ? 'none' : 'flex';
+        });
+    }
 });
