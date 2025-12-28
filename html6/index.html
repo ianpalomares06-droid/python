@@ -129,10 +129,6 @@ let currentUser = JSON.parse(localStorage.getItem('currentUser')) || null;
 function saveUsers() { localStorage.setItem('users', JSON.stringify(users)); }
 function saveCurrentUser() { localStorage.setItem('currentUser', JSON.stringify(currentUser)); }
 
-if (currentUser) {
-    window.location.href = "html5/index.html";
-}
-
 function showLogin() {
     document.getElementById('login').style.display = 'flex';
     document.getElementById('user-panel').style.display = 'none';
@@ -151,24 +147,28 @@ document.getElementById('login')?.addEventListener('submit', e => {
     const username = document.getElementById('login-username').value;
     const password = document.getElementById('login-password').value;
     const user = users.find(u => u.username === username && u.password === password);
-    if (user) { currentUser = user; saveCurrentUser(); window.location.href = "html5/index.html"; }
-    else alert("Invalid username or password");
+    if (user) { 
+        currentUser = user; 
+        saveCurrentUser(); 
+        alert("Login successful!"); 
+        showUserPanel(); 
+    } else alert("Invalid username or password");
 });
 
 document.getElementById('register')?.addEventListener('submit', e => {
     e.preventDefault();
     const username = document.getElementById('reg-username').value;
     const password = document.getElementById('reg-password').value;
-    if (users.find(u => u.username === username)) alert("Username already exists");
-    else { users.push({ username, password }); saveUsers(); alert("Registered successfully"); e.target.reset(); }
+    if(users.find(u=>u.username===username)) alert("Username already exists");
+    else { users.push({username,password}); saveUsers(); alert("Registered successfully"); e.target.reset(); }
 });
 
-document.getElementById('logout')?.addEventListener('click', () => { currentUser = null; saveCurrentUser(); showLogin(); });
+document.getElementById('logout')?.addEventListener('click', () => { currentUser=null; saveCurrentUser(); showLogin(); });
 document.getElementById('delete-account')?.addEventListener('click', () => {
-    if (confirm("Are you sure you want to delete your account?")) {
-        users = users.filter(u => u.username !== currentUser.username);
+    if(confirm("Are you sure you want to delete your account?")){
+        users = users.filter(u=>u.username!==currentUser.username);
         saveUsers();
-        currentUser = null;
+        currentUser=null;
         saveCurrentUser();
         showLogin();
     }
@@ -181,21 +181,22 @@ const chatSend = document.getElementById('chatbot-send');
 const chatBody = document.getElementById('chatbot-body');
 
 let conversationHistory = JSON.parse(localStorage.getItem('chatHistory')) || [];
-conversationHistory.forEach(msg => addMessage(msg.message, msg.sender));
+conversationHistory.forEach(msg=>addMessage(msg.message,msg.sender));
 
-function addMessage(message, sender='user'){
-    const msgDiv = document.createElement('div');
-    msgDiv.className = sender==='user' ? 'chat-msg user-msg' : 'chat-msg bot-msg';
-    msgDiv.textContent = message;
+function addMessage(message,sender='user'){
+    if(!chatMessages) return;
+    const msgDiv=document.createElement('div');
+    msgDiv.className=sender==='user'?'chat-msg user-msg':'chat-msg bot-msg';
+    msgDiv.textContent=message;
     chatMessages.appendChild(msgDiv);
-    chatMessages.scrollTop = chatMessages.scrollHeight;
-    conversationHistory.push({sender, message});
+    chatMessages.scrollTop=chatMessages.scrollHeight;
+    conversationHistory.push({sender,message});
     if(conversationHistory.length>50) conversationHistory.shift();
-    localStorage.setItem('chatHistory', JSON.stringify(conversationHistory));
+    localStorage.setItem('chatHistory',JSON.stringify(conversationHistory));
 }
 
 function botReply(text){
-    const t = text.toLowerCase();
+    const t=text.toLowerCase();
     if(/hello|hi|hey/.test(t)) return "Hello! How can I assist you today?";
     if(/services/.test(t)) return "We offer Web Development, Design Consulting, SEO Optimization, and Customer Support.";
     if(/contact|email|phone/.test(t)) return "You can reach us at info@mywebsite.com or call (123) 456-7890.";
@@ -207,25 +208,26 @@ function botReply(text){
 }
 
 function botTyping(callback){
-    const typingDiv = document.createElement('div');
+    const typingDiv=document.createElement('div');
     typingDiv.className='chat-msg bot-msg'; typingDiv.textContent='Bot is typing...';
-    chatMessages.appendChild(typingDiv); chatMessages.scrollTop = chatMessages.scrollHeight;
-    setTimeout(()=>{ typingDiv.remove(); callback(); }, 800+Math.random()*700);
+    chatMessages.appendChild(typingDiv);
+    chatMessages.scrollTop=chatMessages.scrollHeight;
+    setTimeout(()=>{ typingDiv.remove(); callback(); },800+Math.random()*700);
 }
 
-chatSend?.addEventListener('click', ()=>{
-    const text = chatInput.value.trim();
+chatSend?.addEventListener('click',()=>{
+    const text=chatInput.value.trim();
     if(text==='') return;
-    addMessage(text, 'user'); chatInput.value='';
-    botTyping(()=>addMessage(botReply(text), 'bot'));
+    addMessage(text,'user'); chatInput.value='';
+    botTyping(()=>addMessage(botReply(text),'bot'));
 });
 
-chatInput?.addEventListener('keypress', e=>{
+chatInput?.addEventListener('keypress',e=>{
     if(e.key==='Enter') chatSend.click();
 });
 
-document.getElementById('chatbot-header')?.addEventListener('click', ()=>{
-    chatBody.style.display = chatBody.style.display==='flex' ? 'none' : 'flex';
+document.getElementById('chatbot-header')?.addEventListener('click',()=>{
+    if(chatBody) chatBody.style.display = chatBody.style.display==='flex'?'none':'flex';
 });
 </script>
 </body>
