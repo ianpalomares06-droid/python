@@ -59,7 +59,6 @@ function updateCurrentTimeIndicator() {
 function checkNotifications() {
     const now = new Date();
     events.forEach(event => {
-        // Treat event date as local date
         const [year, month, day] = event.date.split('-').map(Number);
         const [hour, minute] = event.start.split(':').map(Number);
         const eventStart = new Date(year, month-1, day, hour, minute);
@@ -88,6 +87,7 @@ function renderSchedule() {
     const now = new Date();
     const dayOfWeek = now.getDay();
     const startOfWeek = new Date(now);
+    startOfWeek.setHours(0,0,0,0);
     startOfWeek.setDate(now.getDate() - (dayOfWeek === 0 ? 6 : dayOfWeek - 1) + weekOffset*7);
 
     const days = ['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday'];
@@ -113,33 +113,29 @@ function renderSchedule() {
 
     // Rows for events
     events.forEach(event => {
-        // Parse date as LOCAL to avoid timezone shifts
         const [year, month, day] = event.date.split('-').map(Number);
         const eventDate = new Date(year, month-1, day);
 
-        // Compare eventDate with startOfWeek
         const weekEnd = new Date(startOfWeek);
         weekEnd.setDate(startOfWeek.getDate() + 7);
 
         if(eventDate >= startOfWeek && eventDate < weekEnd){
             const row = document.createElement('tr');
 
-            // Time column shows start-end in 12-hour format
+            // Time column in 12-hour format
             const timeCell = document.createElement('td');
             timeCell.className = 'time-cell';
             timeCell.textContent = `${to12Hour(event.start)} - ${to12Hour(event.end)}`;
             row.appendChild(timeCell);
 
-            // Empty cells for all 7 days
             for(let i=0; i<7; i++){
                 const cell = document.createElement('td');
                 cell.className = 'schedule-cell';
                 row.appendChild(cell);
             }
 
-            // Correct day column
-            const dayIndex = eventDate.getDay() === 0 ? 6 : eventDate.getDay() - 1; // Mon=0
-            const eventCell = row.cells[dayIndex + 1]; // skip time column
+            const dayIndex = eventDate.getDay() === 0 ? 6 : eventDate.getDay() - 1;
+            const eventCell = row.cells[dayIndex + 1];
             const eventDiv = document.createElement('div');
             eventDiv.className = 'event';
             eventDiv.innerHTML = `<strong>${event.title}</strong><br>${to12Hour(event.start)} - ${to12Hour(event.end)}
@@ -198,3 +194,40 @@ document.getElementById('addEventBtn').addEventListener('click',()=>{
 });
 
 renderSchedule();
+
+// ---------------- Chatbot ----------------
+const chatBox = document.getElementById('chatBox');
+const chatInput = document.getElementById('chatInput');
+const sendChat = document.getElementById('sendChat');
+
+function addMessage(sender, message) {
+    const p = document.createElement('p');
+    p.innerHTML = `<strong>${sender}:</strong> ${message}`;
+    chatBox.appendChild(p);
+    chatBox.scrollTop = chatBox.scrollHeight;
+}
+
+sendChat.addEventListener('click', () => {
+    const message = chatInput.value.trim();
+    if(!message) return;
+    addMessage('You', message);
+    chatInput.value = '';
+
+    // Simple bot responses
+    let botResponse = "I don't understand.";
+    const msg = message.toLowerCase();
+    if(msg.includes('hello')) botResponse = "Hello! How can I help you?";
+    if(msg.includes('time')) botResponse = new Date().toLocaleTimeString();
+    if(msg.includes('date')) botResponse = new Date().toLocaleDateString();
+    if(msg.includes('event')) botResponse = "You can add events using the form above!";
+
+    setTimeout(()=> addMessage('Bot', botResponse), 500);
+});
+
+// Allow pressing Enter to send
+chatInput.addEventListener('keypress', (e) => {
+    if(e.key === 'Enter'){
+        e.preventDefault();
+        sendChat.click();
+    }
+});
