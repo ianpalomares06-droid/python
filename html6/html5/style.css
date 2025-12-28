@@ -116,9 +116,11 @@ button:hover {
     table-layout: fixed;
     overflow-x: auto;
     display: block;
+    position: relative; /* REQUIRED for time indicator */
 }
 
-.schedule-table th, .schedule-table td {
+.schedule-table th, 
+.schedule-table td {
     border: 1px solid #ccc;
     padding: 5px;
     text-align: center;
@@ -164,6 +166,11 @@ button:hover {
     box-sizing: border-box;
 }
 
+/* Upcoming event visual (used with notifications) */
+.event.upcoming {
+    animation: pulse 2s infinite;
+}
+
 .event button {
     position: absolute;
     top: 2px;
@@ -183,14 +190,22 @@ button:hover {
     display: block;
 }
 
+/* Current Time Indicator (Notification-friendly) */
 .current-time-indicator {
     height: 2px;
-    background: red;
+    background-color: #e74c3c;
     width: 100%;
     position: absolute;
     left: 0;
-    top: 0;
-    z-index: 10;
+    z-index: 20;
+    box-shadow: 0 0 6px rgba(231, 76, 60, 0.8);
+}
+
+/* Pulse animation for upcoming events */
+@keyframes pulse {
+    0% { box-shadow: 0 0 0 0 rgba(52, 152, 219, 0.7); }
+    70% { box-shadow: 0 0 0 8px rgba(52, 152, 219, 0); }
+    100% { box-shadow: 0 0 0 0 rgba(52, 152, 219, 0); }
 }
 
 /* ----------------- Mobile Responsive ----------------- */
@@ -216,13 +231,16 @@ button:hover {
         padding: 8px;
     }
 
-    #weekControls button, #addEventBtn, .back-btn {
+    #weekControls button, 
+    #addEventBtn, 
+    .back-btn {
         width: 100%;
         font-size: 0.95em;
         padding: 10px;
     }
 
-    .schedule-table th, .schedule-table td {
+    .schedule-table th, 
+    .schedule-table td {
         min-width: 100px;
         font-size: 0.85em;
     }
