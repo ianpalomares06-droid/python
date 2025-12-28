@@ -34,8 +34,8 @@ if (user) {
     currentUser = user;
     saveCurrentUser();
 
-    // Correct redirect to schedule page inside html5 folder
-    window.location.href = "html5/index.html";
+  
+    window.location.href = "html6/index.html";
 } else {
     alert('Invalid username or password');
 }
