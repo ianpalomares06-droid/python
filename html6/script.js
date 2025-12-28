@@ -22,20 +22,25 @@ document.addEventListener('DOMContentLoaded', () => {
     else showLogin();
 
     // Login form
-    document.getElementById('login').addEventListener('submit', e => {
-        e.preventDefault();
-        const username = document.getElementById('login-username').value;
-        const password = document.getElementById('login-password').value;
-        const user = users.find(u => u.username === username && u.password === password);
-        if(user){
-            currentUser = user;
-            saveCurrentUser();
-            showUserPanel();
-            window.location.href="script.js";
-        } else {
-            alert('Invalid username or password');
-        }
-    });
+   // Login form
+document.getElementById('login').addEventListener('submit', e => {
+    e.preventDefault();
+    const username = document.getElementById('login-username').value;
+    const password = document.getElementById('login-password').value;
+    const user = users.find(u => u.username === username && u.password === password);
+    
+    if(user){
+        currentUser = user;
+        saveCurrentUser();
+
+        // Redirect to schedule page
+        window.location.href = "script.js"; // change to your schedule page name
+
+    } else {
+        alert('Invalid username or password');
+    }
+});
+
 
     // Register form
     document.getElementById('register').addEventListener('submit', e => {
